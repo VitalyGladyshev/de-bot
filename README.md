@@ -8,3 +8,7 @@
 2. **Telegram бот со сбором статистики и с сохранением на Яндекс.Диск в формате xlsx**
    - Код: **yandexgpt-bot-yd.py**
    - [Дашборд со статистикой](https://datalens.yandex.cloud/x760k4hw73c2j)
+3. **Статистика использования**
+   - Статистика в CSV формате: user_actions.csv
+   - Статистика в XLSX формате: user_actions.xlsx
+     
