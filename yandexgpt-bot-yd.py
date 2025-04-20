@@ -1,7 +1,7 @@
 """
 Бот для проекта по предмету инжиниринг данных
 Реализован доступ к модели YandexGPT 5 Pro
-Реализовано сохранение файла статистики на Яндекс.Диск
+Реализовано сохранение CSV и XLSX файлов статистики на Яндекс.Диск
 
 Гладышев ВВ
 """
@@ -13,6 +13,7 @@ import requests
 import csv
 import os
 import pathlib
+import pandas as pd
 from datetime import datetime
 
 import yadisk
@@ -28,10 +29,26 @@ logging.basicConfig(
 #logging.getLogger("httpx").setLevel(logging.INFO) #WARNING)
 
 LOG_FILE = pathlib.Path.home() / 'user_actions.csv'  # Файл в домашней директории
+EXCEL_FILE = pathlib.Path.home() / 'user_actions.xlsx'
 logger = logging.getLogger(__name__)
 
-def upload_csv_to_yandex_disk():
-    """Загружает CSV файл на Яндекс.Диск"""
+def convert_csv_to_xlsx():
+    """Конвертирует CSV файл в XLSX формат"""
+    try:
+        if os.path.exists(EXCEL_FILE):
+            os.remove(EXCEL_FILE)
+            logger.info(f"Старый файл {EXCEL_FILE} удален.")
+        
+        df = pd.read_csv(LOG_FILE)
+        df.to_excel(EXCEL_FILE, index=False)
+        logger.info(f"Файл {LOG_FILE} успешно конвертирован в {EXCEL_FILE}")
+        return True
+    except Exception as e:
+        logger.error(f"Ошибка конвертации CSV в XLSX: {e}")
+        return False
+
+def upload_log_to_yandex_disk():
+    """Загружает CSV и XLSX файлы на Яндекс.Диск"""
     try:
         y = yadisk.YaDisk(token=config.YANDEX_DISK_TOKEN)
         
@@ -44,6 +61,7 @@ def upload_csv_to_yandex_disk():
             return False
             
         remote_path = "/bot_logs/user_actions.csv"
+        remote_path_xlsx = "/bot_logs/user_actions.xlsx"
         remote_dir = "/bot_logs"
         
         if not y.exists(remote_dir):
@@ -52,6 +70,9 @@ def upload_csv_to_yandex_disk():
             
         y.upload(str(LOG_FILE), remote_path, overwrite=True)
         logger.info(f"Файл {LOG_FILE} успешно загружен на Яндекс.Диск")
+
+        y.upload(str(EXCEL_FILE), remote_path_xlsx, overwrite=True)
+        logger.info(f"Файл {EXCEL_FILE} успешно загружен на Яндекс.Диск")
         return True
         
     except yadisk.exceptions.UnauthorizedError:
@@ -77,8 +98,11 @@ def log_action(user_id: int, action: str, timestamp: datetime) -> None:
                 'action': action
             })
 
+        if convert_csv_to_xlsx():
+            logger.info(f"Файл {EXCEL_FILE} успешно создан")
+
         # Вызываем загрузку после каждой записи
-        if not upload_csv_to_yandex_disk():
+        if not upload_log_to_yandex_disk():
             logger.warning("Не удалось выполнить резервное копирование")
 
     except PermissionError as e:
@@ -172,6 +196,8 @@ def check_log_file():
     try:
         if not LOG_FILE.exists():
             LOG_FILE.touch(mode=0o644)  # Создаем файл с правами rw-r--r--
+        if not EXCEL_FILE.exists():
+            EXCEL_FILE.touch(mode=0o644)  # Создаем файл с правами rw-r--r--
     except Exception as e:
         logger.error(f"Can't create log file: {str(e)}")
         exit(1)
