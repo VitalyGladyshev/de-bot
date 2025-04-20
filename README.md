@@ -1,2 +1,8 @@
-# de-bot
-Data engineering bot
+# Проект по предмету Инжиниринг данных
+
+1. Telegram бот со сбором статистики
+   - Название: Бот с YandexGPT 5 Pro запущен в Яндекс.Облаке
+   - Тег: @glvv_nlp_cw_bot
+   - Код: **yandexgpt-bot.py**
+  
+
