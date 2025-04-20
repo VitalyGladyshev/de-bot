@@ -7,4 +7,4 @@
    - Код: **yandexgpt-bot.py**
 2. **Telegram бот со сбором статистики и с сохранением на Яндекс.Диск в формате xlsx**
    - Код: **yandexgpt-bot-yd.py**
-   - [Дашборд со статистикой]([URL](https://datalens.yandex.cloud/x760k4hw73c2j))
+   - [Дашборд со статистикой](https://datalens.yandex.cloud/x760k4hw73c2j)
